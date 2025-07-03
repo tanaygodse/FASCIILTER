@@ -7,8 +7,22 @@ int main() {
     WebcamCapture webcam;
     ASCIIConverter converter(120, 40);
     
-    if (!webcam.initialize()) {
-        std::cerr << "Failed to initialize webcam" << std::endl;
+    // Try to find available cameras
+    std::cout << "Searching for available cameras..." << std::endl;
+    bool camera_found = false;
+    
+    for (int device_id = 0; device_id < 5; device_id++) {
+        std::cout << "Trying camera device " << device_id << "..." << std::endl;
+        if (webcam.initialize(device_id)) {
+            std::cout << "Successfully connected to camera device " << device_id << std::endl;
+            camera_found = true;
+            break;
+        }
+        webcam.release(); // Clean up failed attempt
+    }
+    
+    if (!camera_found) {
+        std::cerr << "Failed to initialize any webcam" << std::endl;
         std::cerr << "On macOS, you may need to grant camera permissions:" << std::endl;
         std::cerr << "System Preferences > Security & Privacy > Camera > Allow Terminal" << std::endl;
         return -1;
